@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMED · Consolidador de notas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f4;--card:#fff;--ink:#16302b;--mut:#6a7d78;--line:#e0e8e5;--ac:#0e7a68;--ac2:#0a5f51;--soft:#e3f3ef;--warn:#b4541a;--side:#12332d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Plus Jakarta Sans",system-ui,sans-serif}
+.app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+aside{background:var(--side);color:#d7ebe6;padding:22px 16px;display:flex;flex-direction:column;gap:14px;position:sticky;top:0;height:100vh}
+.brand{display:flex;gap:11px;align-items:center;margin-bottom:6px}.brand b{display:block;color:#fff;font-size:1.05rem}.brand small{color:#8fb5ac;font-size:.78rem}
+.logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2fb59c,#0e7a68);display:grid;place-items:center;color:#fff;font-weight:700}
+.lbl{font-size:.78rem;color:#8fb5ac;letter-spacing:.04em;margin-top:6px}
+nav{display:flex;flex-direction:column;gap:4px;overflow:auto;flex:1}
+nav button{display:flex;gap:10px;align-items:center;text-align:left;width:100%;background:transparent;color:#d7ebe6;border:0;border-radius:9px;padding:9px 10px;font:inherit;cursor:pointer}
+nav button:hover{background:#1b4a41}nav button.on{background:#e3f3ef;color:var(--side);font-weight:600}
+nav i{flex:none;width:28px;height:28px;border-radius:8px;background:#26594e;color:#fff;font-style:normal;font-size:.78rem;font-weight:700;display:grid;place-items:center}
+nav button.on i{background:var(--ac)}
+#nf{display:flex;gap:6px}#nf input{flex:1;min-width:0;padding:9px 10px;border-radius:9px;border:1px solid #2c5e53;background:#0e2924;color:#fff;font:inherit}
+#nf input::placeholder{color:#7da79d}
+button{font:inherit;cursor:pointer}
+#nf button,.pri{background:var(--ac);color:#fff;border:0;border-radius:9px;padding:9px 14px;font-weight:600}
+#nf button:hover,.pri:hover{background:var(--ac2)}
+.g{background:transparent;color:inherit;border:1px solid #2c5e53;border-radius:9px;padding:7px 11px;font-size:.85rem}
+.g:hover{background:#1b4a41}.bk{display:flex;gap:6px;flex-wrap:wrap}
+main{padding:30px clamp(16px,4vw,44px) 60px;min-width:0;max-width:1180px}
+.top{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.top small{color:var(--mut)}h1{margin:0;font-size:1.65rem;letter-spacing:-.01em}h2{margin:0 0 10px;font-size:1.02rem}
+.acts{display:flex;gap:8px}.acts .g{color:var(--ink);border-color:var(--line);background:var(--card)}.acts .g:hover{background:var(--soft)}.acts .dgr{color:var(--warn)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 2px rgba(18,51,45,.04)}
+#drop{border:2px dashed #b9cdc7;border-radius:12px;padding:26px 16px;text-align:center;cursor:pointer;color:var(--mut);background:#fafcfb;transition:.15s}
+#drop b{color:var(--ink);display:block;margin-bottom:2px}#drop.on,#drop:hover,#drop:focus-visible{border-color:var(--ac);background:var(--soft);outline:none}
+#res{margin-top:12px}.ok{background:var(--soft);border-radius:10px;padding:10px 14px;color:#0a4f43}
+.warn{color:var(--warn)}ul.inc{margin:8px 0 0;padding-left:18px;font-size:.88rem}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 15px;color:var(--mut);font-weight:600}
+.tabs button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:right}
+th{background:#f6faf8;color:var(--mut);font-weight:600;text-align:center;position:sticky;top:0}
+td:nth-child(-n+2),th:nth-child(-n+2){text-align:left}tbody tr:hover td{background:#f6faf8}
+td:last-child,th:last-child{font-weight:700;background:#f6faf8}
+tr.tot td{font-weight:700;background:var(--soft);border-top:2px solid var(--ac);border-bottom:0}
+.vz{padding:26px;text-align:center;color:var(--mut)}
+.imp{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:.88rem}
+.imp:last-child{border:0}.imp button{background:transparent;border:0;color:var(--warn);font-weight:600}
+.empty{text-align:center;padding:50px 20px}.empty h1{margin-bottom:6px}.empty p{color:var(--mut);max-width:52ch;margin:0 auto}
+details{color:var(--mut);font-size:.88rem}pre{white-space:pre-wrap;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;max-height:240px;overflow:auto;color:var(--ink)}
+.hide{display:none!important}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid #2fb59c;outline-offset:2px}
+@media(max-width:820px){.app{grid-template-columns:1fr}aside{position:static;height:auto}nav{flex-direction:row;flex-wrap:wrap;flex:none}nav button{width:auto}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+ <div class="brand"><span class="logo">D</span><div><b>DMED</b><small>Consolidador de notas</small></div></div>
+ <div class="lbl">EMPRESAS</div>
+ <nav id="emp"></nav>
+ <form id="nf"><input id="nn" placeholder="Nova empresa" maxlength="60" aria-label="Nome da nova empresa"><button title="Criar empresa">+</button></form>
+ <div class="bk"><button class="g" id="bx">Exportar backup</button><button class="g" id="bi">Restaurar backup</button><input type="file" id="bf" accept=".json" hidden></div>
+</aside>
+<main>
+ <div id="vazio" class="card empty hide"><h1>Comece criando uma empresa</h1><p>Use o campo “Nova empresa” no menu ao lado. Cada empresa guarda a sua própria planilha, uma por ano, que cresce a cada relatório enviado.</p></div>
+ <div id="painel" class="hide">
+  <div class="top"><div><small>Empresa</small><h1 id="tit"></h1></div><div class="acts"><button class="g" id="ren">Renomear</button><button class="g dgr" id="del">Excluir</button></div></div>
+  <section class="card"><h2>Enviar relatório ou talão</h2>
+   <div id="drop" tabindex="0" role="button"><b>Arraste os arquivos aqui ou clique para escolher</b>PDF ou CSV. Pode enviar vários de uma vez.</div>
+   <input id="inp" type="file" accept=".pdf,.csv" multiple hidden><div id="res" role="status"></div></section>
+  <section class="card"><div class="bar"><div id="anos" class="tabs"></div><button class="pri" id="dl">Baixar Excel</button></div><div class="wrap" id="tab"></div></section>
+  <section class="card"><h2>Importações feitas</h2><div id="imps"></div></section>
+  <details><summary>Ver o texto lido do último PDF</summary><pre id="dbg">Nenhum PDF lido ainda.</pre></details>
+ </div>
+</main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const MES=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],KEY="dmed.consolidador.v1";
+const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const brl=n=>n==null?"":Number(n).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}),r2=n=>Math.round(n*100)/100,soma=a=>r2(a.reduce((s,x)=>s+(x||0),0));
+const digs=s=>String(s??"").replace(/\D/g,""),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+let S=(()=>{try{const x=JSON.parse(localStorage.getItem(KEY));return x&&x.e?x:{e:[],sel:null}}catch{return{e:[],sel:null}}})(),ano=null;
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch{alert("Não consegui salvar neste navegador. Exporte um backup.")}};
+const emp=()=>S.e.find(c=>c.id===S.sel);
+
+/* ===== CPF, valores, datas ===== */
+function cpfOk(c){c=digs(c);if(c.length!==11||/^(\d)\1{10}$/.test(c))return false;for(const i of[9,10]){let s=0;for(let n=0;n<i;n++)s+=+c[n]*(i+1-n);if((s*10%11)%10!==+c[i])return false}return true}
+const fmtCpf=c=>{c=digs(c);return `${c.slice(0,3)}.${c.slice(3,6)}.${c.slice(6,9)}-${c.slice(9)}`};
+function num(v){if(v==null||v==="")return NaN;let s=String(v).replace(/[^\d,.\-]/g,"");if(s.includes(","))s=s.replace(/\./g,"").replace(",",".");return parseFloat(s)}
+const p2=n=>String(n).padStart(2,"0");
+function data(s){s=String(s??"");let m=s.match(/(\d{2})[\/.-](\d{2})[\/.-](\d{4})/);if(m)return`${m[3]}-${m[2]}-${m[1]}`;
+ m=s.match(/(\d{4})-(\d{2})-(\d{2})/);if(m)return m[0];m=s.match(/\b(\d{2})\/(\d{4})\b/);return m?`${m[2]}-${m[1]}-01`:null}
+const RVR=/(?:R\$\s*)?(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2})/;
+
+/* ===== Leitura de PDF: reconstrói linhas pela posição do texto ===== */
+async function pdfPaginas(f){
+ const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,out=[];
+ for(let p=1;p<=pdf.numPages;p++){const tc=await(await pdf.getPage(p)).getTextContent(),ls=[];
+  for(const it of tc.items){if(!it.str)continue;const y=Math.round(it.transform[5]);let l=ls.find(l=>Math.abs(l.y-y)<=2);if(!l)ls.push(l={y,it:[]});l.it.push({x:it.transform[4],w:it.width,s:it.str})}
+  ls.sort((a,b)=>b.y-a.y);
+  out.push(ls.map(l=>{l.it.sort((a,b)=>a.x-b.x);let s="",e=null;for(const i of l.it){if(e!==null){const g=i.x-e;s+=g>12?"  ":(g>1&&!s.endsWith(" ")&&!i.s.startsWith(" ")?" ":"")}s+=i.s;e=i.x+i.w}return s}).join("\n"))}
+ return out}
+
+/* ===== Reconhecimento de notas: independe do layout (valor na mesma linha ou nas linhas de baixo) ===== */
+const LAB=/^\s*(cpf|cnpj|nome|raz[aã]o|endere|munic|cep(?![a-z])|telefone|e-?mail|inscri|valor|data|n[úu]mero|n[º°]|situa|compet|bairro|uf(?![a-z])|cidade|logradouro|complemento|descri|tomador|prestador|discrimina|c[oó]digo|al[ií]quota|iss|base)/i;
+function acha(L,re,a=0){const R=new RegExp("^\\s*(?:"+re+")(?![A-Za-zÀ-ÿ])[^\\S\\n]*[:\\-–]?\\s*(.*)$","i");
+ for(let i=a;i<L.length;i++){const m=L[i].match(R);if(!m)continue;let t=m[1].trim();
+  for(let k=i+1;!t&&k<Math.min(L.length,i+3);k++){if(!L[k].trim())continue;if(LAB.test(L[k]))break;t=L[k].trim()}
+  if(t)return{i,t}}return null}
+const ANC=["n[úu]mero\\s+d[ao]\\s+(?:nota|nfs-?e|nf)","n[º°o]\\.?\\s*(?:da\\s+)?(?:nota|nfs-?e)","nota\\s+fiscal","nfs-?e","recibo","n[úu]mero","tomador"];
+const ROT_V=["valor\\s+(?:total\\s+)?(?:da\\s+)?nota(?:\\s+fiscal)?","valor\\s+total(?:\\s+dos?\\s+servi[cç]os?)?","valor\\s+(?:bruto\\s+)?dos?\\s+servi[cç]os?","valor\\s+(?:do\\s+)?servi[cç]o","valor\\s+bruto","valor\\s+l[ií]quido(?:\\s+da\\s+nota)?","valor"];
+const ROT_D=["data(?:\\s*\\/\\s*hora)?\\s+(?:de\\s+)?emiss[aã]o","emiss[aã]o","emitid[ao]\\s+em","compet[eê]ncia","data\\s+(?:da\\s+)?presta[cç][aã]o(?:\\s+do\\s+servi[cç]o)?"];
+function separa(pags){
+ const L=pags.join("\n").split("\n");let pos=null;
+ for(const a of ANC){const R=new RegExp("^\\s*(?:"+a+")(?![A-Za-zÀ-ÿ])","i"),p=[];L.forEach((l,i)=>R.test(l)&&p.push(i));if(p.length>=2){pos=p;break}}
+ const br=pos?(pos[0]>0&&pos.unshift(0),pos.map((a,i)=>L.slice(a,pos[i+1]??L.length).join("\n"))):pags,bl=[];
+ for(const b of br){if(bl.length&&!RVR.test(b))bl[bl.length-1]+="\n"+b;else bl.push(b)}
+ return bl.filter(b=>RVR.test(b)||/\d{3}\.?\d{3}\.?\d{3}-?\d{2}/.test(b))}
+function extrai(txt){
+ const L=txt.split("\n"),obs=[];
+ let ti=L.findIndex(l=>/tomador/i.test(l));if(ti<0)ti=L.findIndex(l=>/cliente|paciente|adquirente|contratante/i.test(l));
+ const sec=ti<0?L:L.slice(ti),st=sec.join("\n");
+ const cp=[...new Set((st.match(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g)||[]))],ok=cp.filter(cpfOk);
+ const cpf=ok[0]||cp[0]||"",pj=!cpf&&/\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b/.test(st);
+ if(ok.length>1)obs.push(`${ok.length} CPFs no bloco do tomador (${ok.join(", ")}): conferir`);
+ const cut=s=>(s||"").trim().split(/\s{2,}|\s+(?:CPF|CNPJ)\b/i)[0].replace(/^[\s:\-]+|[\s:\-]+$/g,"");
+ let nome="";
+ if(ti>=0){nome=cut(L[ti].replace(/^.*?(tomador|cliente|paciente|adquirente|contratante)(?:\s+d[oe]s?\s+servi[cç]os?)?/i,""));if(/\d{5}/.test(nome)||LAB.test(nome))nome=""}
+ if(!nome){const r=acha(sec,"nome(?:\\s*\\/\\s*raz[aã]o\\s+social)?|raz[aã]o\\s+social",1);if(r)nome=cut(r.t)}
+ if(!nome)for(const l of sec.slice(1,5)){const t=cut(l);if(t&&!LAB.test(t)&&!/[\d:]/.test(t)){nome=t;break}}
+ let valor=null;
+ for(const r of ROT_V){const a=acha(L,r);if(a){const m=a.t.match(RVR)||(L[a.i+1]||"").match(RVR);if(m){valor=m[1];break}}}
+ let d=null;for(const r of ROT_D){const a=acha(L,r);if(a&&(d=data(a.t)))break}
+ if(!d)d=data(txt);
+ const n=acha(L,"n[úu]mero(?:\\s+d[ao]\\s+(?:nota|nfs-?e|nf))?|n[º°o]\\.?(?:\\s*(?:da\\s+)?(?:nota|nfs-?e))?|nfs-?e|nota\\s+fiscal(?:\\s+de\\s+servi[cç]os?)?");
+ return{num:n?(n.t.match(/\d+/)||[""])[0]:"",nome,cpf,valor,data:d,obs:obs.join(" | "),canc:/cancelad[ao]|substitu[ií]d[ao]|anulad[ao]/i.test(txt),pj}}
+
+/* ===== CSV ===== */
+const COLS={num:["numero","número","nº nota","n° nota","nota"],nome:["nome","paciente","beneficiario","beneficiário","cliente","tomador","nome tomador"],cpf:["cpf","cpf paciente","cpf do paciente","cpf beneficiario","cpf tomador","cpf/cnpj"],valor:["valor","valor pago","valor total","valor servico","valor serviço","vlr","valor dos serviços"],data:["data","data atendimento","data do atendimento","data emissao","data emissão","emissão","competencia","competência"]};
+async function csvTexto(f){const b=await f.arrayBuffer();try{return new TextDecoder("utf-8",{fatal:true}).decode(b)}catch{return new TextDecoder("windows-1252").decode(b)}}
+async function lerCsv(f){const r=Papa.parse(await csvTexto(f),{header:true,skipEmptyLines:true,delimiter:""}),fl=r.meta.fields,low=fl.map(c=>c.trim().toLowerCase());
+ const c={};for(const k in COLS){const i=low.findIndex(x=>COLS[k].includes(x));c[k]=i<0?null:fl[i]}
+ const f0=["nome","cpf","valor","data"].filter(k=>!c[k]);if(f0.length)throw new Error(`colunas não encontradas (${f0.join(", ")}). Colunas do arquivo: ${fl.join(", ")}`);
+ return r.data.map(x=>({num:c.num?digs(x[c.num]):"",nome:x[c.nome],cpf:x[c.cpf],valor:x[c.valor],data:data(x[c.data]),obs:"",canc:false,pj:false}))}
+
+/* ===== Importação: soma na planilha do ano e do mês que estão na DATA da nota ===== */
+async function importar(fs){
+ const c=emp();if(!c||!fs.length)return;$("res").innerHTML="<div class='ok'>Lendo arquivos…</div>";
+ const imp=uid(),inc=[],novas=[],have=new Set(c.notas.map(n=>n.k));let canc=0,pj=0,dup=0;
+ for(const f of fs){let rs;
+  try{if(/\.pdf$/i.test(f.name)){const pg=await pdfPaginas(f);if(!pg.join("").trim())throw new Error("sem texto extraível (PDF escaneado? precisa de OCR)");$("dbg").textContent=pg.join("\n— página —\n");
+    rs=separa(pg).map(extrai);if(!rs.length)throw new Error("nenhuma nota reconhecida")}else rs=await lerCsv(f)}
+  catch(e){inc.push({a:f.name,p:e.message});continue}
+  for(const r of rs){
+   if(r.canc){canc++;continue}if(r.pj){pj++;continue}
+   const cpf=digs(r.cpf),v=num(r.valor),nome=String(r.nome||"").replace(/\s+/g," ").trim().toUpperCase(),m=[];
+   if(!cpfOk(cpf))m.push("CPF inválido ou vazio (menor sem CPF? na DMED entra com data de nascimento)");if(!(v>0))m.push("valor não encontrado");if(!r.data)m.push("data não encontrada");
+   if(m.length){inc.push({a:f.name,nome,cpf:r.cpf,p:m.join("; ")+" → não entrou"});continue}
+   if(!nome||r.obs)inc.push({a:f.name,nome,cpf:fmtCpf(cpf),p:[!nome&&"nome não localizado",r.obs].filter(Boolean).join("; ")+" → entrou, conferir"});
+   const k=[r.num,cpf,v.toFixed(2),r.data].join("|");if(have.has(k)){dup++;continue}have.add(k);
+   novas.push({k,i:imp,n:r.num,nome:nome||"(NOME NÃO LOCALIZADO)",cpf:fmtCpf(cpf),v:r2(v),d:r.data})}}
+ if(novas.length){c.notas.push(...novas);c.imps.push({id:imp,arq:fs.map(f=>f.name).join(", "),em:new Date().toLocaleDateString("pt-BR"),n:novas.length});ano=novas.map(n=>n.d.slice(0,4)).sort().pop();save()}
+ const per=[...new Set(novas.map(n=>`${MES[+n.d.slice(5,7)-1]}/${n.d.slice(0,4)}`))].join(", ");
+ $("res").innerHTML=`<div class="ok"><b>${novas.length} nota(s) adicionada(s)</b>${per?` nos meses: ${esc(per)}`:""} · total R$ ${brl(soma(novas.map(n=>n.v)))}${dup?` · ${dup} já existia(m)`:""}${canc?` · ${canc} cancelada(s) ignorada(s)`:""}${pj?` · ${pj} de pessoa jurídica ignorada(s)`:""}</div>`+
+  (inc.length?`<p class="warn" style="margin:12px 0 0"><b>${inc.length} ponto(s) para conferir</b></p><ul class="inc">${inc.map(i=>`<li><b>${esc(i.a)}</b> ${esc(i.nome||"")} ${esc(i.cpf||"")}: ${esc(i.p)}</li>`).join("")}</ul>`:"");
+ render()}
+
+/* ===== Planilha do ano ===== */
+function tabela(c,a){const g=new Map();
+ for(const n of c.notas){if(n.d.slice(0,4)!==String(a))continue;let p=g.get(n.cpf);if(!p)g.set(n.cpf,p={cpf:n.cpf,nm:{},m:Array(12).fill(null)});p.nm[n.nome]=(p.nm[n.nome]||0)+1;const i=+n.d.slice(5,7)-1;p.m[i]=r2((p.m[i]||0)+n.v)}
+ return[...g.values()].map(p=>{const e=Object.entries(p.nm).sort((x,y)=>y[1]-x[1]);return{cpf:p.cpf,nome:e[0][0],multi:e.length>1,m:p.m}}).sort((x,y)=>x.nome.localeCompare(y.nome,"pt-BR"))}
+function render(){
+ $("emp").innerHTML=S.e.map(c=>`<button data-id="${c.id}" class="${c.id===S.sel?"on":""}"><i>${esc(c.nome.trim().slice(0,2).toUpperCase())}</i><span>${esc(c.nome)}</span></button>`).join("");
+ const c=emp();$("vazio").classList.toggle("hide",!!S.e.length);$("painel").classList.toggle("hide",!c);if(!c)return;
+ $("tit").textContent=c.nome;
+ const anos=[...new Set(c.notas.map(n=>n.d.slice(0,4)))].sort().reverse();if(!anos.includes(ano))ano=anos[0]||null;
+ $("anos").innerHTML=anos.length?anos.map(a=>`<button data-a="${a}" class="${a===ano?"on":""}">${a}</button>`).join(""):"<span style='color:var(--mut)'>Planilha por ano</span>";
+ $("dl").classList.toggle("hide",!ano);
+ if(!ano){$("tab").innerHTML="<div class='vz'>Envie o primeiro relatório para montar a planilha.</div>"}
+ else{const R=tabela(c,ano),tm=MES.map((_,i)=>soma(R.map(r=>r.m[i])));
+  $("tab").innerHTML=`<table><thead><tr><th>CPF</th><th>Nome do tomador</th>${MES.map(m=>`<th>${m}</th>`).join("")}<th>Total ano</th></tr></thead><tbody>${R.map(r=>`<tr><td>${esc(r.cpf)}</td><td>${esc(r.nome)}${r.multi?" <span class='warn' title='Este CPF aparece com nomes diferentes'>⚠</span>":""}</td>${r.m.map(v=>`<td>${brl(v)}</td>`).join("")}<td>${brl(soma(r.m))}</td></tr>`).join("")}<tr class="tot"><td></td><td>Total geral</td>${tm.map(v=>`<td>${brl(v)}</td>`).join("")}<td>${brl(soma(tm))}</td></tr></tbody></table>`}
+ $("imps").innerHTML=c.imps.length?c.imps.slice().reverse().map(i=>`<div class="imp"><span><b>${esc(i.arq)}</b><br><small style="color:var(--mut)">${i.em} · ${i.n} nota(s)</small></span><button data-i="${i.id}">Remover</button></div>`).join(""):"<div style='color:var(--mut)'>Nada importado ainda.</div>"}
+
+async function excel(c,a){const R=tabela(c,a),wb=new ExcelJS.Workbook(),ws=wb.addWorksheet(String(a)),F={name:"Arial",size:10};
+ ws.addRow(["CPF","NOME DO TOMADOR",...MES,"TOTAL ANO"]);
+ R.forEach((r,i)=>{const n=i+2,x=ws.addRow([r.cpf,r.nome,...r.m,null]);x.getCell(15).value={formula:`SUM(C${n}:N${n})`,result:soma(r.m)}});
+ const u=R.length+1,t=u+1,x=ws.addRow([null,"TOTAL GERAL"]);
+ for(let k=3;k<=15;k++){const L=ws.getColumn(k).letter;x.getCell(k).value={formula:`SUM(${L}2:${L}${u})`,result:k<15?soma(R.map(r=>r.m[k-3])):soma(R.map(r=>soma(r.m)))}}
+ ws.eachRow((row,n)=>row.eachCell({includeEmpty:true},(c,k)=>{c.font={...F,bold:n===1||n===t||k===15};if(k>=3)c.numFmt="#,##0.00";
+  if(n===1){c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFD9E1F2"}};c.alignment={horizontal:"center"}}
+  if(n===t){c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF2F2F2"}};c.border={top:{style:"medium"}}}}));
+ ws.getColumn(1).width=17;ws.getColumn(2).width=Math.max(18,...R.map(r=>r.nome.length+2));for(let k=3;k<=15;k++)ws.getColumn(k).width=k<15?12:14;
+ ws.views=[{state:"frozen",xSplit:2,ySplit:1}];return new Blob([await wb.xlsx.writeBuffer()],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})}
+function baixar(blob,nome){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nome;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+
+/* ===== Eventos ===== */
+$("nf").onsubmit=e=>{e.preventDefault();const n=$("nn").value.trim();if(!n)return;const c={id:uid(),nome:n,notas:[],imps:[]};S.e.push(c);S.sel=c.id;$("nn").value="";$("res").innerHTML="";save();render()};
+$("emp").onclick=e=>{const b=e.target.closest("button");if(b){S.sel=b.dataset.id;ano=null;$("res").innerHTML="";save();render()}};
+$("ren").onclick=()=>{const c=emp(),n=prompt("Novo nome da empresa:",c.nome);if(n&&n.trim()){c.nome=n.trim();save();render()}};
+$("del").onclick=()=>{const c=emp();if(confirm(`Excluir “${c.nome}” e todas as planilhas dela? Esta ação não pode ser desfeita (exporte um backup antes, se precisar).`)){S.e=S.e.filter(x=>x!==c);S.sel=S.e[0]?.id||null;save();render()}};
+$("anos").onclick=e=>{const b=e.target.closest("button");if(b){ano=b.dataset.a;render()}};
+$("dl").onclick=async()=>{const c=emp();baixar(await excel(c,ano),`DMED_${c.nome.replace(/[^\w]+/g,"_")}_${ano}.xlsx`)};
+$("imps").onclick=e=>{const b=e.target.closest("button");if(!b)return;const c=emp();if(confirm("Remover esta importação? As notas dela saem da planilha.")){c.notas=c.notas.filter(n=>n.i!==b.dataset.i);c.imps=c.imps.filter(i=>i.id!==b.dataset.i);save();render()}};
+$("drop").onclick=()=>$("inp").click();$("drop").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("inp").click()}};
+$("inp").onchange=e=>{const f=[...e.target.files];e.target.value="";importar(f)};
+$("drop").ondragover=e=>{e.preventDefault();$("drop").classList.add("on")};$("drop").ondragleave=()=>$("drop").classList.remove("on");
+$("drop").ondrop=e=>{e.preventDefault();$("drop").classList.remove("on");importar([...e.dataTransfer.files].filter(f=>/\.(pdf|csv)$/i.test(f.name)))};
+$("bx").onclick=()=>baixar(new Blob([JSON.stringify(S)],{type:"application/json"}),`dmed-backup-${new Date().toISOString().slice(0,10)}.json`);
+$("bi").onclick=()=>$("bf").click();
+$("bf").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{const x=JSON.parse(await f.text());if(!Array.isArray(x.e))throw 0;if(confirm("Restaurar o backup substitui todas as empresas atuais neste navegador. Continuar?")){S=x;ano=null;save();render()}}catch{alert("Arquivo de backup inválido.")}};
+render();
+</script>
+</body>
+</html>
